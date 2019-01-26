@@ -21,6 +21,7 @@
     <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
     <![endif]-->
     <script src="https://vuejs.org/js/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="home.css" type="text/css">
 
 </head>
@@ -80,7 +81,7 @@
                             <div class="form-group">
                                 <label for="userName" class="">昵 称</label>
                                 <div class="">
-                                    <input type="text" v-model="userName" id="userName" class="form-control">
+                                    <input type="text" v-model="name" id="name" class="form-control">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -101,7 +102,7 @@
                                     <!--<input type="submit" class="btn btn-success btn-lg btn-block" value="加入社区">-->
                                 </div>
                             </div>
-                            <p>{{userName + email + password}}</p>
+                            <p>{{name + email + password}}</p>
                         </form>
                         <div class="text-center">
                             <h4 style="color: #777;">已有账号？<a>立即登陆</a></h4>
@@ -173,12 +174,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 <script src="home.js"></script>
 <script>
-    axios.defaults.baseURL = "http://localhost:8080/";
+    axios.defaults.baseURL = "http://localhost:8080";
 
     var registerForm = new Vue({
         el: '#register_form',
         data: {
-            userName: '',
+            name: '',
             email: '',
             password: ''
         },
@@ -188,8 +189,12 @@
                 //基础的数据验证先省略
                 //axios发送json
                 axios.post(
-                    'register',{
-
+                    '/register',{
+                        data: {
+                            name: this.name,
+                            email: this.email,
+                            password: this.password
+                        }
                     }
                     //返回数据对象
                 ).then(
@@ -199,9 +204,7 @@
                     //返回的错误对象
                 ).catch(function (error) {
                     
-                });
-
-                alert(this.data);
+                })
             }
         }
     })
