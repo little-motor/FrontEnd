@@ -21,16 +21,18 @@
             <div class="col-md-offset-3 col-md-6">
                 <form class="form-horizontal">
                     <div class="form-group">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="支持邮箱登陆">
+                        <input type="email" class="form-control" id="email" placeholder="支持邮箱登陆">
                     </div>
                     <div class="form-group help">
-                        <input type="password" class="form-control" id="inputPassword3" placeholder="密　码">
+                        <input type="password" class="form-control" id="password" placeholder="密　码">
                     </div>
                     <div class="form-group">
                         <div class="main-checkbox">
-                            <input type="checkbox" value="None" id="checkbox1" name="check"/>Remember Me
+                            <input type="checkbox" value="remember" id="checkbox"/>Remember Me
                         </div>
-                        <button type="button" class="btn btn-primary btn-lg">登录</button>
+                        <p>
+                            <button type="button" class="btn btn-primary btn-lg btn-block" onclick="login()">登录</button>
+                        </p>
                     </div>
                 </form>
             </div>
@@ -42,5 +44,40 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
+<script>
+
+    //向服务器发送json数据
+    function login() {
+        var email = document.getElementById("email");
+        var password = document.getElementById("password");
+        var remember = false;
+        if (document.getElementById("checkbox").checked) {
+            remember = true;
+        }
+
+    }
+
+    function ajax() {
+        var xhr = new XMLHttpRequest();
+        //需要在open()方法之前调用onreadystatechange事件，确保跨浏览器的兼容性
+        xhr.onreadystatechange = function(){
+            //状态从0-4，4表示接受了全部响应可以在客户端使用
+            if(xhr.readyState == 4){
+                if((xhr.status >= 200 && xhr.status <= 300) || xhr.status == 304){
+
+                }else {
+                    alert("Request was unsuccessful: " + xhr.status);
+                }
+            }
+        };
+        //启动请求
+        shr.open("post", "", false);
+        //发送数据到服务器
+        shr.send(null);
+
+
+    }
+
+</script>
 </body>
 </html>
