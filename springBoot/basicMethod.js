@@ -24,10 +24,13 @@
  *         │ ─┤ ─┤       │ ─┤ ─┤
  *         └──┴──┘       └──┴──┘  + + + +
  *                神兽保佑
- *               科一二三四全过
  *               统统没有bug
+ *              科一二三四全过
  */
-//定义登陆的用户对象，在JSON序列化过程中null的消息会自动被去除
+/**
+ * 定义登陆的用户对象，在JSON序列化过程中null的消息会自动被去除
+ * @type {{name: undefined, email: undefined, password: undefined, rememberMe: undefined}}
+ */
 var user = {
     name: undefined,
     email: undefined,
@@ -35,6 +38,16 @@ var user = {
     rememberMe: undefined
 };
 
+/**
+ * 定义发送message的对象，在JSON序列化过程中null的消息会自动被去除
+ * @type {{content: undefined}}
+ */
+var message = {
+    userId: undefined,
+    messageData: undefined,
+    likeNum: undefined,
+    comments: undefined
+};
 
 /**
  * 负责组合提示的消息，其中reminderState传递提示的状态（可选的有alert-success、alert-info、alert-warning、alert-danger）
@@ -43,7 +56,7 @@ var user = {
  * @param content
  * @returns {string}
  */
-function message(state, content) {
+function combineMessage(state, content) {
     var a = "<div style=\"margin-top: -2.5%\" class=\"alert alert-dismissible ";
     var c = "\" role=\"alert\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>";
     var e = "</div>";
@@ -72,48 +85,24 @@ function getCookie(key) {
     }
 }
 
-/**
- * ajax的公用方法
- * @param data
- * @param method
- */
-function ajax(data, method, uri, contentType) {
-    var xhr = new XMLHttpRequest();
-    //需要在open()方法之前调用onreadystatechange事件，确保跨浏览器的兼容性
-    xhr.onreadystatechange = function () {
-        //状态从0-4，4表示接受了全部响应可以在客户端使用
-        if (xhr.readyState == 4) {
-            if ((xhr.status >= 200 && xhr.status <= 300) || xhr.status == 304) {
-                switch (uri) {
-                    case "/register":
-                        document.getElementById("reminder").innerHTML = message("alert-success", xhr.getResponseHeader("Message"));
-                        break;
-                    case "/login":
-                        document.getElementById("reminder").innerHTML = message("alert-success","登陆成功正在跳转...");
-                        setTimeout(function(){document.location = 'http://localhost:8080';}, 1000);
-                        break;
-                }
-            } else {
-                var httpHeader = xhr.getResponseHeader("Message");
-                switch (httpHeader) {
-                    case "DuplicateKeyException":
-                        document.getElementById("reminder").innerHTML = message("alert-danger", "邮箱已存在");
-                        break;
-                    default:
-                        document.getElementById("reminder").innerHTML = message("alert-danger", "错误");
-                }
-            }
-        }
-    };
-    //启动请求
-    xhr.open(method, uri, true);
-    //在open和send之间设置请求头
-    xhr.setRequestHeader("Content-Type", contentType);
-    //post方法里面需要加入csrfToken
-    xhr.setRequestHeader("X-CSRF-TOKEN", getCookie("X-CSRF-TOKEN"));
-    //发送数据到服务器
-    xhr.send(data);
-}
+
+// /**
+//  * ajax的公用方法
+//  * @param data
+//  * @param method
+//  */
+// function ajax(data, method, uri, contentType,func,xhr) {
+//     //需要在open()方法之前调用onreadystatechange事件，确保跨浏览器的兼容性
+//     xhr.onreadystatechange = func;
+//     //启动请求
+//     xhr.open(method, uri, true);
+//     //在open和send之间设置请求头
+//     xhr.setRequestHeader("Content-Type", contentType);
+//     //post方法里面需要加入csrfToken
+//     xhr.setRequestHeader("X-CSRF-TOKEN", getCookie("X-CSRF-TOKEN"));
+//     //发送数据到服务器
+//     xhr.send(data);
+// }
 
 /**
  * 序列化表单的公共方法
