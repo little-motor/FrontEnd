@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>留言</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="basicMethod.js"></script>
+    <link rel="stylesheet" type="text/css" href="basicStyle.css">
+</head>
+<body onload="loginState();getMessages()">
+
+<!--显示页头-->
+<script src="head.js"></script>
+
+<!--中间部分-->
+<div class="container-fluid">
+
+    <div class="col-md-3 col-md-offset-4">
+        <!--显示已发送的消息-->
+        <div id="postedMessages"></div>
+    </div>
+
+    <div id="message-textArea">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div id="tips"></div>
+                <form>
+                    <div class="form-group">
+                        <textarea id="messageData" class="form-control" rows="5"></textarea>
+                    </div>
+                </form>
+                <button onclick="submit()" type="submit" class="btn btn-default">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--显示页尾-->
+<script src="foot.js"></script>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+
+<script>
+
+    /**
+     * 主页加载完成后获取用法的message列表，并调用showMessageList方法
+     */
+    function getMessages() {
+        ajax(null, "GET", "/message/getMessages", null);
+    }
+
+    /**
+     * 在页面显示用户已经发送的消息
+     */
+    function showMessageList(responseText) {
+        if (responseText != null) {
+            var list = JSON.parse(responseText);
+            //循环遍历显示列表，目前最多显示最近的5个元素
+            //
+            for (var index = 0; ((index < list.length) && index < 5) ; index++) {
+                //注意messageData有null的情况
+                if (list[index].messageData != null) {
+                    //逐个显示messageData和日期
+                    var postedMessages = document.getElementById("postedMessages");
+
+                    //创建media div元素
+                    var createDivMedia = document.createElement("div");
+                    createDivMedia.className = "media";
+
+                    //创建media-left div元素
+                    var createDivMediaLeft = document.createElement("div");
+                    createDivMediaLeft.className = "media-left";
+                    var createH = document.createElement("h2")
+                    //日期
+                    var elementDateTime = document.createTextNode(new Date(list[index].createDate).toLocaleDateString().replace(/2019\//, ""));
+                    console.log(elementDateTime.valueOf());
+                    createH.appendChild(elementDateTime);
+                    createDivMediaLeft.appendChild(createH);
+
+                    //创建media-body元素
+                    var createDivMediaBody = document.createElement("div");
+                    createDivMediaBody.className = "media-body";
+                    createDivMediaBody.id = list[index].messageId;
+                    createH = document.createElement("h4");
+                    //消息
+                    var elementMessage = document.createTextNode(list[index].messageData);
+                    console.log(elementMessage.valueOf());
+                    createH.appendChild(elementMessage);
+                    //爱心icon标签
+                    var createIconHeart = document.createElement("span");
+                    createIconHeart.addEventListener("onclick", like());
+                    createIconHeart.className = "glyphicon glyphicon-heart";
+                    var elementLikeNum = document.createTextNode(" " + list[index].likeNum);
+                    //评论icon标签
+                    var createIconComment = document.createElement("span");
+                    createIconComment.className = "glyphicon glyphicon-comment";
+                    var commentNum = " 0";
+                    if ((list[index].comments.length == 1) && (list[index].comments[0].commentData == null)) {
+                        commentNum = " " + 0;
+                    } else {
+                        commentNum = " " + list[index].comments.length;
+                    }
+                    var elementCommentNum = document.createTextNode(commentNum);
+                    createDivMediaBody.appendChild(createH);
+                    createDivMediaBody.appendChild(createIconHeart);
+                    createDivMediaBody.appendChild(elementLikeNum);
+                    createDivMediaBody.appendChild(createIconComment);
+                    createDivMediaBody.appendChild(elementCommentNum);
+
+                    //组装
+                    createDivMedia.appendChild(createDivMediaLeft);
+                    createDivMedia.appendChild(createDivMediaBody);
+                    postedMessages.appendChild(createDivMedia);
+                }
+            }
+            console.log("数组大小：" + list.length);
+        }
+
+        /**
+         * <div class="media">
+         <div class="media-left">
+         <a href="#">
+         <img class="media-object" src="..." alt="...">
+         </a>
+         </div>
+         <div class="media-body">
+         <h4 class="media-heading">Media heading</h4>
+         ...
+         </div>
+         </div>
+         */
+    }
+
+    /**
+     * 发送text内容
+     */
+    function submit() {
+        var uri = "/message";
+        message.userId = getCookie("userId");
+        message.messageData = document.getElementById("messageData").value;
+        //向服务器发送数据
+        ajax(JSON.stringify(message), "POST", uri, "application/json;charset=UTF-8");
+    }
+
+    /**
+     * 点赞功能
+     */
+    function like() {
+        alert("like");
+    }
+    /**
+     * 注销用户
+     */
+    function logout() {
+        var uri = "/logout";
+        var xhr = new XMLHttpRequest();
+        ajax("", "POST", uri, "application/x-www-form-urlencoded");
+    }
+
+    /**
+     * ajax方法
+     * @param data
+     * @param method
+     */
+    function ajax(data, method, uri, contentType) {
+        var xhr = new XMLHttpRequest();
+        //需要在open()方法之前调用onreadystatechange事件，确保跨浏览器的兼容性
+        xhr.onreadystatechange = function () {
+            //状态从0-4，4表示接受了全部响应可以在客户端使用
+            if (xhr.readyState == 4) {
+                if ((xhr.status >= 200 && xhr.status <= 300) || xhr.status == 304) {
+                    switch (uri) {
+
+                        //发送消息
+                        case "/message":
+                            document.getElementById("tips").innerHTML = combineMessage("alert-success", "发送成功");
+                            setTimeout(function () {
+                                document.location = 'http://localhost:8080/message';
+                            }, 1000);
+                            break;
+
+                        //返回已发送的消息列表
+                        case "/message/getMessages":
+                            console.log(xhr.responseText);
+                            showMessageList(xhr.responseText);
+                            break;
+
+                        case "/logout":
+                            document.getElementById("tips").innerHTML = combineMessage("alert-success", "注销成功正在跳转到主页...");
+                            setTimeout(function () {
+                                document.location = 'http://localhost:8080';
+                            }, 1000);
+                            break;
+                    }
+                } else {
+                    var httpHeader = xhr.getResponseHeader("Message");
+                    switch (httpHeader) {
+                        default:
+                            document.getElementById("tips").innerHTML = combineMessage("alert-danger", "错误");
+                    }
+                }
+            }
+        };
+        //启动请求
+        xhr.open(method, uri, true);
+        if (method == "POST") {
+            //在open和send之间设置请求头
+            xhr.setRequestHeader("Content-Type", contentType);
+            //post方法里面需要加入csrfToken
+            xhr.setRequestHeader("X-CSRF-TOKEN", getCookie("X-CSRF-TOKEN"));
+        }
+        //发送数据到服务器
+        xhr.send(data);
+    }
+
+</script>
+</body>
+</html>
